@@ -9,13 +9,15 @@ Reference TabletUILib.dll to your project and add a dependency for the lib,
    [assembly: MelonAdditionalDependencies("TabletUILib")]
    ```
 
-Here is a quick example on how to make bubbles.
-```csharp The .App and .Toggle add sub bubbles.
+Here is a quick example on how to make bubbles, sub bubbles, and UI
+```csharp
+TabletUI.AddBubble("name", "whatshowsontheicon")
+```
+The .App and .Toggle add sub bubbles.
+```csharp
 TabletUI.AddBubble("better cam", "CAM")   // makes the bubble on the wheel
     .App("settings", "SET", Home)         //button 1 opens the tablet ui
     .Toggle("effects", "FX", on);         //button 2 on/off switch
 ```
-The .App and .Toggle add sub bubbles.
-```csharp This will add a bubble.
-TabletUI.AddBubble()
-```
+
+
