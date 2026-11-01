@@ -4,14 +4,13 @@ Hellooo, I saw people wanted to use my mod BetterCam for its UI code (thank you 
 Instead of getting AI to look at the UI code you can make it easy on yourself and use this library.
 
 # Usage
-Reference TabletUILib.dll to your project.
+Reference TabletUILib.dll to your project and add a dependency for the lib,
 ```csharp
    [assembly: MelonAdditionalDependencies("TabletUILib")]
    ```
-add a dependency for the lib,
 
 Here is a quick example on how to make bubbles.
-```csharp
+```csharp The .App and .Toggle add sub bubbles.
 TabletUI.AddBubble("better cam", "CAM")   // makes the bubble on the wheel
     .App("settings", "SET", Home)         //button 1 opens the tablet ui
     .Toggle("effects", "FX", on);         //button 2 on/off switch
