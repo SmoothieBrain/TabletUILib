@@ -8,13 +8,14 @@ using TavernLib.ModdingApi;
 
 namespace TabletUILib
 {
-    [TavernMod(ModSide.Client)]
+    [TavernMod(ModSide.Both)]
     public class TabletUIMod : MelonMod
     {
         public override void OnInitializeMelon()
         {
             TabletUI.Patch(HarmonyInstance);
             TabletWheel.Patch(HarmonyInstance);
+            ServerMods.Start();
             MelonLogger.Msg("tabletuilib loaded");
         }
 
@@ -23,6 +24,7 @@ namespace TabletUILib
             try
             {
                 TabletUI.Tick();
+                ServerMods.Tick();
             }
             catch (Exception e)
             {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Alta.QuickAccessActions;
 using HarmonyLib;
 using MelonLoader;
@@ -16,6 +17,11 @@ namespace TabletUILib
         public Func<Page> Home;
         public Action Run;
         public Func<bool> Active;
+        public TabletBubble Owner;
+        public Action<Player> Server;
+        public string Role;
+
+        public string Id => Owner.Name + "/" + Name;
     }
 
     public class TabletBubble
@@ -23,6 +29,7 @@ namespace TabletUILib
         internal string Name;
         internal string Icon;
         internal List<BubbleEntry> Entries = new List<BubbleEntry>();
+        internal string Needs;
 
         internal TabletBubble(string name, string icon)
         {
@@ -30,24 +37,47 @@ namespace TabletUILib
             Icon = string.IsNullOrEmpty(icon) ? "MOD" : icon;
         }
 
+        public TabletBubble NeedsServer(string mod)
+        {
+            if (string.IsNullOrEmpty(mod)) throw new ArgumentNullException(nameof(mod));
+            Needs = mod;
+            return this;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public TabletBubble NeedsServer()
+        {
+            var asm = Assembly.GetCallingAssembly();
+            var melon = MelonAssembly.LoadedAssemblies.FirstOrDefault(a => a.Assembly == asm)?.LoadedMelons.FirstOrDefault();
+            if (melon == null) throw new InvalidOperationException("couldnt tell which mod this is, pass the mod name to NeedsServer");
+            return NeedsServer(melon.Info.Name);
+        }
+
         public TabletBubble App(string name, string icon, Func<Page> home)
         {
             if (home == null) throw new ArgumentNullException(nameof(home));
-            Entries.Add(new BubbleEntry { Name = name, Icon = icon, Home = home });
+            Entries.Add(new BubbleEntry { Name = name, Icon = icon, Home = home, Owner = this });
             return this;
         }
 
         public TabletBubble Action(string name, string icon, Action run)
         {
             if (run == null) throw new ArgumentNullException(nameof(run));
-            Entries.Add(new BubbleEntry { Name = name, Icon = icon, Run = run });
+            Entries.Add(new BubbleEntry { Name = name, Icon = icon, Run = run, Owner = this });
+            return this;
+        }
+
+        public TabletBubble ServerAction(string name, string icon, Action<Player> run, string role = null)
+        {
+            if (run == null) throw new ArgumentNullException(nameof(run));
+            Entries.Add(new BubbleEntry { Name = name, Icon = icon, Server = run, Role = role, Owner = this });
             return this;
         }
 
         public TabletBubble Toggle(string name, string icon, Func<bool> get, Action<bool> set)
         {
             if (get == null || set == null) throw new ArgumentNullException(get == null ? nameof(get) : nameof(set));
-            Entries.Add(new BubbleEntry { Name = name, Icon = icon, Run = () => set(!get()), Active = get });
+            Entries.Add(new BubbleEntry { Name = name, Icon = icon, Run = () => set(!get()), Active = get, Owner = this });
             return this;
         }
 
@@ -66,7 +96,18 @@ namespace TabletUILib
     {
         public BubbleEntry Entry;
 
-        public override bool IsValid => Player.Current != null;
+        static bool InGame => Player.Current != null && GameModeManager.CurrentMode is JoinServerGameModeBase;
+
+        public override bool IsValid
+        {
+            get
+            {
+                if (!InGame || Entry == null) return false;
+                if (Entry.Owner.Needs != null && !ServerMods.Has(Entry.Owner.Needs)) return false;
+                return Entry.Server == null || ServerMods.HasAction(Entry.Id);
+            }
+        }
+
         public override bool IsIgnored => !IsValid || base.IsIgnored;
 
         public override bool IsActive
@@ -85,6 +126,7 @@ namespace TabletUILib
             try
             {
                 if (Entry.Home != null) TabletUI.Toggle(controller, Entry.Home);
+                else if (Entry.Server != null) ServerMods.Run(Entry.Id);
                 else Entry.Run();
             }
             catch (Exception e)
@@ -116,6 +158,8 @@ namespace TabletUILib
                 return apps;
             }
         }
+
+        internal static IEnumerable<BubbleEntry> ServerEntries => bubbles.SelectMany(b => b.Entries).Where(e => e.Server != null);
 
         internal static TabletBubble Add(string name, string icon)
         {
