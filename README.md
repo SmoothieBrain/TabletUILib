@@ -63,3 +63,6 @@ you can also check it yourself with ServerMods.Has("ModName"), ModName is the na
 - The tablet shows 4 rows at a time, more rows get page arrows
 - A bubble with no sub bubbles wont show up
 - Bubble names have to be different from other bubbles
+
+# IMPORTANT
+Quest version doesnt have server stuff yet, I havent got around to making it just yet. im just uploading what i have so far, pls dont make mod menus with this mod.
