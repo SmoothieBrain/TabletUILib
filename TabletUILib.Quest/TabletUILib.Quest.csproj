@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>TabletUILib</AssemblyName>
+    <RootNamespace>TabletUILib</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DebugType>none</DebugType>
+    <Deterministic>true</Deterministic>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <QuestRefs>$(MSBuildThisFileDirectory)..\QuestRefs</QuestRefs>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(QuestRefs)\net8\MelonLoader.dll" Private="false" />
+    <Reference Include="$(QuestRefs)\net8\0Harmony.dll" Private="false" />
+    <Reference Include="$(QuestRefs)\net8\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(QuestRefs)\net8\Il2CppInterop.Common.dll" Private="false" />
+    <Reference Include="$(QuestRefs)\net8\UnityEngine.Il2CppImageConversionManager.dll" Private="false" />
+    <Reference Include="$(QuestRefs)\Il2CppAssemblies\*.dll" Private="false" />
+  </ItemGroup>
+
+</Project>
